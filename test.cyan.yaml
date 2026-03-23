@@ -1,0 +1,12 @@
+tests:
+  - name: single_file_resolve
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/single_file_resolve
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/single_file_resolve/template-a
+        origin:
+          template: template-a
+          layer: 0

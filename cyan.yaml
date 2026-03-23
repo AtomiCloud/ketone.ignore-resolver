@@ -1,0 +1,18 @@
+username: atomi
+name: ignore
+description: AtomiCloud's dot ignore merger
+project: https://github.com/AtomiCloud/ketone.ignore-resolver
+source: https://github.com/AtomiCloud/ketone.ignore-resolver
+email: ernest@atomi.cloud
+tags: ["atomi"]
+readme: README.MD
+build:
+  registry: ${DOMAIN:-docker.io}/${GITHUB_REPO_REF:-atomi}
+  platforms:
+    - linux/amd64
+    - linux/arm64
+  images:
+    resolver:
+      image: ignore
+      dockerfile: Dockerfile
+      context: .
