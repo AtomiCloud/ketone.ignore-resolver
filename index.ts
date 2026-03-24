@@ -197,10 +197,8 @@ function globalDedup(sections: Section[]): Section[] {
         dedupedPatterns.push(p);
       }
     }
-    // Only include section if it has patterns
-    if (dedupedPatterns.length > 0) {
-      result.push({ ...section, patterns: dedupedPatterns });
-    }
+    // Per spec: "Empty section after dedup → Section header still included (with sources)"
+    result.push({ ...section, patterns: dedupedPatterns });
   }
 
   return result;
