@@ -1,0 +1,3 @@
+### Rust [edition 2021]
+target/
+Cargo.lock

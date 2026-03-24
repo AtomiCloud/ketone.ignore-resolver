@@ -1,0 +1,9 @@
+*.bak
+*.swp
+*.tmp
+
+### node
+#### source: template-a, template-b
+build/
+dist/
+node_modules/

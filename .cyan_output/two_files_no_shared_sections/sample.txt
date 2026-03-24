@@ -1,0 +1,9 @@
+### python
+#### source: template-b
+*.pyc
+__pycache__/
+
+### rust
+#### source: template-a
+Cargo.lock
+target/

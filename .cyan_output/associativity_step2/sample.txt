@@ -1,0 +1,5 @@
+### node
+#### source: bar, base, foo
+*.log
+build/
+dist/

@@ -1,0 +1,5 @@
+### node
+#### source: template-a
+*.log
+dist/
+node_modules/

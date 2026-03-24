@@ -1,0 +1,4 @@
+### node
+#### source: base, foo
+*.log
+dist/
