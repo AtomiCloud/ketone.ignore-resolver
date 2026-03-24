@@ -1,0 +1,3 @@
+### node [app, v18]
+*.log
+dist/

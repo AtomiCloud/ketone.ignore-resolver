@@ -1,0 +1,9 @@
+### node
+#### source: template-a
+dist/
+node_modules/
+
+### template-b
+#### source: template-b
+*.pyc
+__pycache__/

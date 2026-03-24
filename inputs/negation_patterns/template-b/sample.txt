@@ -1,0 +1,3 @@
+### rules
+*.tmp
+!important.log

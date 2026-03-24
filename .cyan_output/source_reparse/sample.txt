@@ -1,0 +1,4 @@
+### tools
+#### source: a, resolved, template-b
+go/
+rust/

@@ -1,0 +1,4 @@
+### Node [v18]
+node_modules/
+dist/
+*.log

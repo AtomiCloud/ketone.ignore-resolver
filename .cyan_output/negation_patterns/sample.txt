@@ -1,0 +1,5 @@
+### rules
+#### source: template-a, template-b
+!important.log
+*.log
+*.tmp

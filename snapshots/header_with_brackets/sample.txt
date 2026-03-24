@@ -1,0 +1,10 @@
+### Node
+#### source: v18
+*.log
+dist/
+node_modules/
+
+### Rust [edition 2021]
+#### source: template-b
+Cargo.lock
+target/

@@ -1,0 +1,7 @@
+### node
+#### source: template-a, template-b, template-c
+*.log
+build/
+coverage/
+dist/
+node_modules/

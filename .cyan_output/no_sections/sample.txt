@@ -1,0 +1,10 @@
+### template-a
+#### source: template-a
+*.log
+dist/
+node_modules/
+
+### template-b
+#### source: template-b
+*.tmp
+build/
