@@ -1,0 +1,4 @@
+### node
+node_modules/ # dependencies
+dist/ # build output
+*.log # log files

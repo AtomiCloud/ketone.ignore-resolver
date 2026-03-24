@@ -1,0 +1,5 @@
+# Python ignores
+### python
+__pycache__/
+# cache files
+*.pyc

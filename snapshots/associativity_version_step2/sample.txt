@@ -1,0 +1,5 @@
+### node
+#### source: app, prod, v18
+*.log
+build/
+dist/

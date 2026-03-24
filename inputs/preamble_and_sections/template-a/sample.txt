@@ -1,4 +1,5 @@
+*.bak
+*.swp
 ### node
 node_modules/
 dist/
-*.log

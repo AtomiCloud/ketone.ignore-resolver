@@ -25,6 +25,7 @@ The resolver receives multiple file contents (each tagged with an origin templat
 
 - **Lines before the first `### ` header** are the **preamble** (root section).
 - **Lines starting with `### ` (triple hash + space)** are **section headers**. The header text is everything after `### `.
+- **Lines starting with `#### source:` (four hashes + space + "source:")** are **source metadata lines**. These are extracted during parsing to populate the `sources` field; they are NOT treated as patterns. Multiple comma-separated template names follow the `:` prefix.
 - **Everything else** is a **pattern line** (including negation `!foo`, globstar `**/foo`, directory patterns `foo/`, etc.).
 - If a file has **no `### ` headers at all**, wrap its entire content in `### <template-name>` where `<template-name>` comes from `file.origin.template`.
 - If a file has a preamble (content before first `### `), that preamble content belongs to the root section.
@@ -54,8 +55,10 @@ Section = {
 
 ### Section Header Format
 
-- **Single source:** `### Node template [template-a]`
-- **Multiple sources:** `### Node template [template-a, template-b]`
+- **Section header:** `### Node template` (no source info inline)
+- **Source line:** `#### source: template-a, template-b` — always on its own line immediately after the section header
+- **Single source:** `#### source: template-a`
+- **Multiple sources:** `#### source: template-a, template-b`
 - **Preamble:** No header line. Preamble patterns appear at the top of the file, before any named sections.
 
 ### Output Construction
@@ -64,7 +67,8 @@ Section = {
 2. Blank line (if preamble exists and named sections follow)
 3. For each named section (alphabetically):
    - Blank line (between sections)
-   - Header line: `### <section-name> [source-a, source-b]`
+   - Header line: `### <section-name>`
+   - Source line: `#### source: <source-a, source-b>`
    - Pattern lines, sorted alphabetically
 
 ## Commutativity
@@ -79,7 +83,7 @@ The merge result MUST be identical regardless of input file order. This is guara
 
 | Case | Behavior |
 |------|----------|
-| Single file input (1 input) | Passthrough — still adds source tag to headers, still normalizes |
+| Single file input (1 input) | Passthrough — still adds `#### source:` line under headers, still normalizes |
 | File with no `### ` headers | Wrap content in `### <template-name>`, merge normally |
 | Pattern in multiple sections | Global dedup keeps first occurrence (preamble first, then alphabetical sections) |
 | Negation patterns (`!keep-this`) | Treated as opaque text, deduped and sorted normally |
@@ -91,6 +95,8 @@ The merge result MUST be identical regardless of input file order. This is guara
 | Inline comments (`pattern # comment`) | `# comment` stripped, only pattern portion kept |
 | Backslash continuation | Lines joined before any other processing |
 | Three files, same section | Triple dedup + sort, all three sources listed |
+| `#### source:` lines in input | Parsed as source metadata, not patterns; sources merged into the section's source list |
+| Previously-resolved output reprocessed | `#### source:` lines are unambiguously parsed — no heuristic needed, full associativity |
 
 ## Constraints
 

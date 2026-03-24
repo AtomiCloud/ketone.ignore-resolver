@@ -10,3 +10,439 @@ tests:
         origin:
           template: template-a
           layer: 0
+
+  - name: two_files_shared_section
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/two_files_shared_section
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/two_files_shared_section/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/two_files_shared_section/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: two_files_no_shared_sections
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/two_files_no_shared_sections
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/two_files_no_shared_sections/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/two_files_no_shared_sections/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: no_sections
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/no_sections
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/no_sections/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/no_sections/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: mixed_with_without_sections
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/mixed_with_without_sections
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/mixed_with_without_sections/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/mixed_with_without_sections/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: preamble_and_sections
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/preamble_and_sections
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/preamble_and_sections/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/preamble_and_sections/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: negation_patterns
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/negation_patterns
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/negation_patterns/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/negation_patterns/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: trailing_whitespace
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/trailing_whitespace
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/trailing_whitespace/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/trailing_whitespace/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: empty_file
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/empty_file
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/empty_file/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/empty_file/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: three_files_same_section
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/three_files_same_section
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/three_files_same_section/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/three_files_same_section/template-b
+        origin:
+          template: template-b
+          layer: 1
+      - path: ./inputs/three_files_same_section/template-c
+        origin:
+          template: template-c
+          layer: 2
+
+  - name: comment_lines
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/comment_lines
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/comment_lines/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/comment_lines/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: inline_comments
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/inline_comments
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/inline_comments/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/inline_comments/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: backslash_continuation
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/backslash_continuation
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/backslash_continuation/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/backslash_continuation/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: commutativity_ab
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/commutativity
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/commutativity_ab/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/commutativity_ab/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: commutativity_ba
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/commutativity
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/commutativity_ba/template-b
+        origin:
+          template: template-b
+          layer: 1
+      - path: ./inputs/commutativity_ba/template-a
+        origin:
+          template: template-a
+          layer: 0
+
+  - name: crlf_endings
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/crlf_endings
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/crlf_endings/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/crlf_endings/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: header_with_brackets
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/header_with_brackets
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/header_with_brackets/template-a
+        origin:
+          template: template-a
+          layer: 0
+      - path: ./inputs/header_with_brackets/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: associativity_step1
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_step1
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_step1/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/associativity_step1/foo
+        origin:
+          template: foo
+          layer: 1
+
+  - name: associativity_step2
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_step2
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_step2/resolved
+        origin:
+          template: resolved
+          layer: 0
+      - path: ./inputs/associativity_step2/bar
+        origin:
+          template: bar
+          layer: 1
+
+  - name: associativity_all_at_once
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_all_at_once
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_all_at_once/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/associativity_all_at_once/foo
+        origin:
+          template: foo
+          layer: 1
+      - path: ./inputs/associativity_all_at_once/bar
+        origin:
+          template: bar
+          layer: 2
+
+  - name: associativity_short_step1
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_short_step1
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_short_step1/a
+        origin:
+          template: a
+          layer: 0
+
+  - name: associativity_short_step2
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_short_step2
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_short_step2/resolved
+        origin:
+          template: resolved
+          layer: 0
+      - path: ./inputs/associativity_short_step2/b
+        origin:
+          template: b
+          layer: 1
+
+  - name: associativity_short_all_at_once
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_short_all_at_once
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_short_all_at_once/a
+        origin:
+          template: a
+          layer: 0
+      - path: ./inputs/associativity_short_all_at_once/b
+        origin:
+          template: b
+          layer: 1
+
+  - name: source_reparse
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/source_reparse
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/source_reparse/resolved
+        origin:
+          template: resolved
+          layer: 0
+      - path: ./inputs/source_reparse/template-b
+        origin:
+          template: template-b
+          layer: 1
+
+  - name: source_extraction_test
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/source_extraction_test
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/source_extraction_test/template-a
+        origin:
+          template: template-a
+          layer: 0
+
+  - name: associativity_version_step1
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_version_step1
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_version_step1/v18
+        origin:
+          template: v18
+          layer: 0
+      - path: ./inputs/associativity_version_step1/app
+        origin:
+          template: app
+          layer: 1
+
+  - name: associativity_version_step2
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_version_step2
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_version_step2/resolved
+        origin:
+          template: resolved
+          layer: 0
+      - path: ./inputs/associativity_version_step2/prod
+        origin:
+          template: prod
+          layer: 1
+
+  - name: associativity_version_all_at_once
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/associativity_version_all_at_once
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/associativity_version_all_at_once/v18
+        origin:
+          template: v18
+          layer: 0
+      - path: ./inputs/associativity_version_all_at_once/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/associativity_version_all_at_once/prod
+        origin:
+          template: prod
+          layer: 2

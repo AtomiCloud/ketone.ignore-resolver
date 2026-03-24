@@ -21,8 +21,8 @@ Pure function: `string → string`. Chain of transforms on the raw file content:
 
 1. **Backslash continuation** — join `\`-terminated lines to next line
 2. **Split into lines**, strip trailing whitespace per line
-3. **Discard comment lines** — first non-whitespace is `#`
-4. **Strip inline comments** — remove ` #...` from pattern lines (after confirming not a `### ` header)
+3. **Discard comment lines** — first non-whitespace is `#` (but NOT `#### source:` lines)
+4. **Strip inline comments** — remove ` #...` from pattern lines (after confirming not a `### ` or `#### ` header)
 5. **Discard empty lines**
 
 ### 2. Section Parsing (`parseSections`)
@@ -32,6 +32,7 @@ Takes preprocessed lines + template name, returns `Section[]`:
 - Scan for `### ` header lines
 - Lines before first header → preamble section (header: null)
 - Each `### ` line → new section with header text (everything after `### `)
+- Lines starting with `#### source:` → extract comma-separated template names into the section's `sources` array; these are NOT patterns
 - Remaining lines → patterns for current section
 - If no headers found at all → wrap everything in `### <template-name>`
 
@@ -46,15 +47,18 @@ Takes `Section[]` from all files, returns `Section[]`:
 
 ### 4. Global Dedup (`globalDedup`)
 
-After reconstruction, scan all pattern lines in order (preamble first, then sections A→Z). Remove duplicate lines, keeping first occurrence.
+After reconstruction, scan all pattern lines in order (preamble first, then sections A→Z). Remove duplicate lines, keeping first occurrence. Skip `#### source:` lines (they are metadata, not patterns).
 
 ### 5. Output Formatting (`formatOutput`)
 
 Reconstruct the final file string from merged sections:
 
-- Preamble patterns (no header)
+- Preamble patterns (no header, no source line)
 - Blank line separator
-- Each named section: `### <name> [source-a, source-b]` + patterns
+- Each named section:
+  - `### <name>` (header only, no inline source)
+  - `#### source: <source-a, source-b>` (source line, always present)
+  - Pattern lines, sorted alphabetically
 - One blank line between sections
 
 ### 6. Entry Point
@@ -65,7 +69,7 @@ Wire it all together in `index.ts` using `StartResolverWithLambda`. Validate inp
 
 | # | Name | Inputs | Key Behavior |
 |---|------|--------|-------------|
-| 1 | single_file_resolve | 1 file with sections | Passthrough + source tag |
+| 1 | single_file_resolve | 1 file with sections | Passthrough + `#### source:` line |
 | 2 | two_files_shared_section | 2 files, same section name | Dedup + sort + merged sources |
 | 3 | two_files_no_shared_sections | 2 files, different sections | All included, alphabetical |
 | 4 | no_sections | 2 files, no `### ` headers | Wrapped in `### <template>` |
@@ -86,11 +90,11 @@ Tests 14+15 share the same snapshot directory to verify commutativity.
 ## Implementation Checklist (from task-spec)
 
 - [ ] Preprocessing: strip trailing whitespace, backslash continuation, discard comments, strip inline comments, discard empty lines
-- [ ] Parse sections: preamble detection, `### ` headers, wrapping for no-header files
+- [ ] Parse sections: preamble detection, `### ` headers, `#### source:` extraction, wrapping for no-header files
 - [ ] Merge: group by header (case-insensitive), dedupe patterns, sort patterns, merge sources
 - [ ] Sort sections alphabetically (preamble first)
-- [ ] Global dedup pass (keep first occurrence in file order)
-- [ ] Format output: source tags in headers, blank line normalization
+- [ ] Global dedup pass (keep first occurrence in file order, skip `#### source:` lines)
+- [ ] Format output: `### name` header + `#### source:` line on separate line, blank line normalization
 - [ ] Commutativity: sort inputs by layer/template before processing
 - [ ] Input validation: empty files list, mismatched paths
 - [ ] All 15 test cases passing
