@@ -13,7 +13,21 @@ env:
   CYAN_TOKEN: ${{ secrets.CYAN_TOKEN }}
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@v3
+      - name: Install CyanPrint
+        run: ./scripts/setup-ubuntu.sh
+      - name: Run CyanPrint Tests
+        run: |
+          PARALLELISM=$(( $(nproc --all) * 4 > 16 ? 16 : $(nproc --all) * 4 ))
+          cyanprint test resolver . --parallel "$PARALLELISM"
   publish:
+    needs: test
     name: Publish
     runs-on: ubuntu-22.04
     steps:

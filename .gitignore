@@ -175,4 +175,6 @@ dist
 ### Finder (MacOS) folder config
 .DS_Store
 
-.kagent/
+
+.cyan_output/
+.cyan_backup*/

@@ -6,6 +6,8 @@ source: https://github.com/AtomiCloud/ketone.ignore-resolver
 email: ernest@atomi.cloud
 tags: ["atomi"]
 readme: README.MD
+commands:
+  - 'chmod +x scripts/*.sh 2>/dev/null || true'
 build:
   registry: ${DOMAIN:-docker.io}/${GITHUB_REPO_REF:-atomi}
   platforms:

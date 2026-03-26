@@ -1,3 +1,6 @@
 node_modules
 .idea
 .vscode
+
+.cyan_output/
+.cyan_backup*/
