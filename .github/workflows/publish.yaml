@@ -23,9 +23,7 @@ jobs:
       - name: Install CyanPrint
         run: ./scripts/setup-ubuntu.sh
       - name: Run CyanPrint Tests
-        run: |
-          PARALLELISM=$(( $(nproc --all) * 4 > 16 ? 16 : $(nproc --all) * 4 ))
-          cyanprint test resolver . --parallel "$PARALLELISM"
+        run: cyanprint test resolver .
   publish:
     needs: test
     name: Publish
