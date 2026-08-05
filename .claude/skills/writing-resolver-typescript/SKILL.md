@@ -1,6 +1,6 @@
 ---
 name: writing-resolver-typescript
-description: Write or modify CyanPrint resolver code in TypeScript. Use when the user asks to change conflict resolution logic, modify merge strategies, handle file origins, or change resolution behavior. Covers entry point (StartResolverWithLambda), ResolverInput/ResolverOutput, ResolvedFile, and FileOrigin. Must ensure commutativity and associativity (sort, unique, deterministic ordering).
+description: Write or modify CyanPrint resolver code in TypeScript. Use when the user asks to change conflict resolution logic, modify merge strategies, handle file origins, or change resolution behavior. Covers entry point (`export function resolver`), ResolverInput/ResolverOutput, ResolvedFile, and FileOrigin. Must ensure commutativity and associativity (sort, unique, deterministic ordering).
 ---
 
 # Writing this Resolver (TypeScript)
@@ -8,13 +8,20 @@ description: Write or modify CyanPrint resolver code in TypeScript. Use when the
 ## Entry Point
 
 ```typescript
-import { StartResolverWithLambda, type ResolverInput, type ResolverOutput } from '@atomicloud/cyan-sdk';
+import type { ResolverInput, ResolverOutput } from '@cyanprint/sdk';
 
-StartResolverWithLambda(async (input: ResolverInput): Promise<ResolverOutput> => {
+export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
   // Resolve conflict
   return { path, content };
-});
+}
 ```
+
+> `@cyanprint/sdk` is **type-only** and resolves against the vendored
+> `types/cyanprint-sdk.d.ts` via the `paths` mapping in `tsconfig.json`. There is no package to
+> install and no runtime dependency. Do **not** import `@atomicloud/cyan-sdk`: npm serves the v3
+> Express SDK under that name, and CyanPrint v4 does not load it — the run prints
+> `Resolver listening on port 5553`, then `[error] Artifact bundle has no resolver export`, and
+> then hangs.
 
 ## ResolverInput
 
@@ -110,10 +117,9 @@ return { path: input.files[0].path, content: JSON.stringify(merged, null, 2) };
 ## Entry Point Skeleton
 
 ```typescript
-import { StartResolverWithLambda } from '@atomicloud/cyan-sdk';
-import type { ResolverInput, ResolverOutput } from '@atomicloud/cyan-sdk';
+import type { ResolverInput, ResolverOutput } from '@cyanprint/sdk';
 
-StartResolverWithLambda(async (input: ResolverInput): Promise<ResolverOutput> => {
+export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
   const { config, files } = input;
   if (files.length === 0) throw new Error('Resolver received no files — at least 1 file is required');
   const uniquePaths = new Set(files.map(f => f.path));
@@ -134,7 +140,7 @@ StartResolverWithLambda(async (input: ResolverInput): Promise<ResolverOutput> =>
   const content = sorted[sorted.length - 1].content;
 
   return { path, content };
-});
+}
 ```
 
 ## Key Rules

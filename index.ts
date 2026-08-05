@@ -1,4 +1,4 @@
-import { type ResolverOutput, StartResolverWithLambda, type ResolverInput } from '@atomicloud/cyan-sdk';
+import type { ResolverInput, ResolverOutput } from '@cyanprint/sdk';
 
 interface Section {
   header: string | null; // null for preamble
@@ -233,7 +233,7 @@ function formatOutput(sections: Section[]): string {
 
 // ─── Entry Point ────────────────────────────────────────────────────
 
-StartResolverWithLambda(async (input: ResolverInput): Promise<ResolverOutput> => {
+export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
   const { files } = input;
 
   if (files.length === 0) {
@@ -285,4 +285,4 @@ StartResolverWithLambda(async (input: ResolverInput): Promise<ResolverOutput> =>
   const content = formatOutput(deduped);
 
   return { path, content };
-});
+}
