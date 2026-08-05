@@ -1,5 +1,10 @@
 # Plan 1: Implement Ignore Resolver
 
+> **Superseded by the CyanPrint v4 conversion (PR #2).** The SDK and entry-point
+> requirements recorded below were true of this task when it was written and are kept verbatim as a
+> historical record. Current shape: `export function resolver(input)` with a type-only
+> `@cyanprint/sdk` import. Do not follow this document as instructions.
+
 **Scope:** Complete resolver implementation with preprocessing, section parsing, merging, and comprehensive tests.
 
 ## Goal

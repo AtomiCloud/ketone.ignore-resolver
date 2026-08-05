@@ -10,10 +10,10 @@ This is a CyanPrint resolver project. Resolvers handle conflicts when multiple t
 
 ```
 ├── cyan/
-│   ├── index.ts              # Resolver entry point - StartResolverWithLambda
+│   ├── index.ts              # Resolver entry point - export function resolver
 │   ├── src/
 │   │   └── *.ts              # Resolver logic modules
-│   ├── package.json          # Dependencies (@atomicloud/cyan-sdk)
+│   ├── package.json          # Dependencies (none at runtime; SDK types are vendored)
 │   └── tsconfig.json         # TypeScript configuration
 ├── resolver/                  # Resolver artifact files (language-specific)
 │   ├── {language}/           # Language-specific implementations
