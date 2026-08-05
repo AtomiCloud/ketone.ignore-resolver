@@ -1,20 +1,8 @@
-username: atomi
+cyanprint: 4
+kind: resolver
+owner: atomi
 name: ignore
 description: AtomiCloud's dot ignore merger
-project: https://github.com/AtomiCloud/ketone.ignore-resolver
-source: https://github.com/AtomiCloud/ketone.ignore-resolver
-email: ernest@atomi.cloud
-tags: ["atomi"]
 readme: README.MD
-commands:
-  - 'chmod +x scripts/*.sh 2>/dev/null || true'
-build:
-  registry: ${DOMAIN:-docker.io}/${GITHUB_REPO_REF:-atomi}
-  platforms:
-    - linux/amd64
-    - linux/arm64
-  images:
-    resolver:
-      image: ignore
-      dockerfile: Dockerfile
-      context: .
+entry: index.ts
+bundledEntry: dist/index.js
