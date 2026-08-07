@@ -78,7 +78,7 @@ Reference this resolver in a template's `cyan.yaml`:
 
 ```yaml
 resolvers:
-  - resolver: atomi/ignore:1
+  - ref: atomi/ignore@2
     config: {}
     files: ['.gitignore', '.dockerignore', '.ignore']
 ```
