@@ -1,9 +1,17 @@
 import type { ResolverInput, ResolverOutput } from '@cyanprint/sdk';
 
+export type OrderStrategy = 'alphabetical' | 'reverse-alphabetical' | 'lowest-layer-first' | 'highest-layer-first';
+
+interface FileOrigin {
+  template: string;
+  layer: number;
+}
+
 interface Section {
   header: string | null; // null for preamble
   patterns: string[];
   sources: string[];
+  origin: FileOrigin;
 }
 
 // ─── 1. Preprocessing ───────────────────────────────────────────────
@@ -55,7 +63,8 @@ function preprocess(raw: string): string[] {
 
 // ─── 2. Section Parsing ─────────────────────────────────────────────
 
-function parseSections(lines: string[], templateName: string): Section[] {
+function parseSections(lines: string[], origin: FileOrigin): Section[] {
+  const templateName = origin.template;
   const sections: Section[] = [];
   let current: Section | null = null;
 
@@ -82,7 +91,7 @@ function parseSections(lines: string[], templateName: string): Section[] {
         }
         // Otherwise keep bracket as part of the header name
       }
-      current = { header, patterns: [], sources: extractedSources };
+      current = { header, patterns: [], sources: extractedSources, origin };
       sections.push(current);
     } else if (/^#### source:/.test(line)) {
       // Extract sources from #### source: line (new format)
@@ -102,7 +111,7 @@ function parseSections(lines: string[], templateName: string): Section[] {
       // This line is NOT a pattern — skip adding to patterns
     } else {
       if (current === null) {
-        current = { header: null, patterns: [], sources: [templateName] };
+        current = { header: null, patterns: [], sources: [templateName], origin };
         sections.push(current);
       }
       current.patterns.push(line);
@@ -114,15 +123,71 @@ function parseSections(lines: string[], templateName: string): Section[] {
   if (!hasHeaders && sections.length > 0) {
     // All content is preamble — wrap in a named section
     const allPatterns = sections.flatMap((s) => s.patterns);
-    return [{ header: templateName, patterns: allPatterns, sources: [templateName] }];
+    return [{ header: templateName, patterns: allPatterns, sources: [templateName], origin }];
   }
 
   return sections;
 }
 
-// ─── 3. Merge Sections ──────────────────────────────────────────────
+// ─── 3. Section Ordering ────────────────────────────────────────────
+//
+// Mirrors `atomi/md`'s `sectionOrder` exactly: same four values, same defaults,
+// same validation error, same layer tie-break, same origin choice for a merged
+// group. One dialect across the resolver set, not two.
 
-function mergeSections(allSections: Section[]): Section[] {
+function sortLayerAsc(a: Section, b: Section): number {
+  if (a.origin.layer !== b.origin.layer) return a.origin.layer - b.origin.layer;
+  return a.origin.template.localeCompare(b.origin.template);
+}
+
+function sortLayerDesc(a: Section, b: Section): number {
+  if (a.origin.layer !== b.origin.layer) return b.origin.layer - a.origin.layer;
+  return a.origin.template.localeCompare(b.origin.template);
+}
+
+// The preamble has no heading; it sorts as the empty string, exactly as
+// `atomi/md`'s unnamed preamble section does. Under `alphabetical` that keeps it
+// first — the behaviour every existing snapshot was recorded with.
+function headerKey(section: Section): string {
+  return section.header ?? '';
+}
+
+function sortHeaderAsc(a: Section, b: Section): number {
+  return headerKey(a).localeCompare(headerKey(b));
+}
+
+function sortHeaderDesc(a: Section, b: Section): number {
+  return headerKey(b).localeCompare(headerKey(a));
+}
+
+const VALID_STRATEGIES: readonly OrderStrategy[] = [
+  'alphabetical',
+  'reverse-alphabetical',
+  'lowest-layer-first',
+  'highest-layer-first',
+];
+
+function validateStrategy(value: unknown, field: string): OrderStrategy {
+  if (VALID_STRATEGIES.includes(value as OrderStrategy)) return value as OrderStrategy;
+  throw new Error(`Invalid ${field}: "${String(value)}". Must be one of: ${VALID_STRATEGIES.join(', ')}`);
+}
+
+function pickComparator(strategy: OrderStrategy): (a: Section, b: Section) => number {
+  switch (strategy) {
+    case 'alphabetical':
+      return sortHeaderAsc;
+    case 'reverse-alphabetical':
+      return sortHeaderDesc;
+    case 'lowest-layer-first':
+      return sortLayerAsc;
+    case 'highest-layer-first':
+      return sortLayerDesc;
+  }
+}
+
+// ─── 4. Merge Sections ──────────────────────────────────────────────
+
+function mergeSections(allSections: Section[], sectionOrder: OrderStrategy): Section[] {
   // Group by header (case-insensitive, preserve first-occurrence casing)
   const headerOrder: string[] = [];
   const headerCasingMap = new Map<string, string>();
@@ -170,20 +235,21 @@ function mergeSections(allSections: Section[]): Section[] {
     }
     sources.sort();
 
-    merged.push({ header, patterns, sources });
+    // Select the origin appropriate for the sectionOrder strategy: layer-based
+    // strategies need the matching extremum origin for correct positioning.
+    // `group` is in file order, which the resolver already sorted layer-ascending.
+    const origin = sectionOrder === 'highest-layer-first' ? group[group.length - 1].origin : group[0].origin;
+
+    merged.push({ header, patterns, sources, origin });
   }
 
-  // Sort sections: preamble first, then named sections alphabetically
-  merged.sort((a, b) => {
-    if (a.header === null) return -1;
-    if (b.header === null) return 1;
-    return a.header.localeCompare(b.header);
-  });
+  // Sort sections by the sectionOrder strategy
+  merged.sort(pickComparator(sectionOrder));
 
   return merged;
 }
 
-// ─── 4. Global Dedup ────────────────────────────────────────────────
+// ─── 5. Global Dedup ────────────────────────────────────────────────
 
 function globalDedup(sections: Section[]): Section[] {
   const seen = new Set<string>();
@@ -204,7 +270,7 @@ function globalDedup(sections: Section[]): Section[] {
   return result;
 }
 
-// ─── 5. Output Formatting ───────────────────────────────────────────
+// ─── 6. Output Formatting ───────────────────────────────────────────
 
 function formatOutput(sections: Section[]): string {
   const lines: string[] = [];
@@ -234,7 +300,7 @@ function formatOutput(sections: Section[]): string {
 // ─── Entry Point ────────────────────────────────────────────────────
 
 export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
-  const { files } = input;
+  const { config, files } = input;
 
   if (files.length === 0) {
     throw new Error('Resolver received no files — at least 1 file is required');
@@ -255,6 +321,8 @@ export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
     return a.origin.template.localeCompare(b.origin.template);
   });
 
+  const sectionOrder = validateStrategy(config.sectionOrder ?? 'alphabetical', 'sectionOrder');
+
   // Filter out empty files
   const nonEmpty = sorted.filter((f) => f.content.trim().length > 0);
   if (nonEmpty.length === 0) {
@@ -266,7 +334,7 @@ export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
   for (const file of nonEmpty) {
     const lines = preprocess(file.content);
     if (lines.length > 0) {
-      const sections = parseSections(lines, file.origin.template);
+      const sections = parseSections(lines, file.origin);
       allSections.push(...sections);
     }
   }
@@ -276,7 +344,7 @@ export async function resolver(input: ResolverInput): Promise<ResolverOutput> {
   }
 
   // Merge sections
-  const merged = mergeSections(allSections);
+  const merged = mergeSections(allSections, sectionOrder);
 
   // Global dedup
   const deduped = globalDedup(merged);

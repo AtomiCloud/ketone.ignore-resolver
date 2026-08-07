@@ -18,7 +18,27 @@ When fully implemented, the resolver will:
 
 ## Configuration Schema
 
-This resolver requires no configuration.
+| Key            | Type   | Default        | Description                                                                                    |
+| -------------- | ------ | -------------- | ---------------------------------------------------------------------------------------------- |
+| `sectionOrder` | string | `alphabetical` | Strategy for ordering `### <group>` sections in the final output. See [Strategies](#strategies). |
+
+### Strategies
+
+`sectionOrder` accepts one of four values — the same four, with the same names and the same meanings, as `atomi/md`:
+
+| Value                  | Behavior                                                    |
+| ---------------------- | ------------------------------------------------------------- |
+| `alphabetical`         | Sort by group name (A–Z)                                      |
+| `reverse-alphabetical` | Sort by group name (Z–A)                                      |
+| `lowest-layer-first`   | Sort by origin layer ascending (layer 0 before layer 1)       |
+| `highest-layer-first`  | Sort by origin layer descending (layer 1 before layer 0)      |
+
+Any other value throws, naming the field and the valid set.
+
+Two details that follow from the mechanism:
+
+- **The unnamed preamble sorts as the empty string.** Under `alphabetical` it stays first, which is the historical behaviour; under `reverse-alphabetical` it lands last; under the layer strategies it sits at its own layer's position.
+- **A group contributed by several templates takes one origin.** Under `highest-layer-first` that is its highest-layer contributor; under every other strategy, its lowest. Layer ties break on template name ascending.
 
 ## Commutativity and Associativity
 
