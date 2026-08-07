@@ -446,3 +446,146 @@ tests:
         origin:
           template: prod
           layer: 2
+
+  # sectionOrder — the uniform order option, matching atomi/md's four values.
+  # One shared input set (base=0 Middle, app=1 Zebra, prod=2 Apple) so the four
+  # strategies are distinguished by output alone; the default arm shares the
+  # `alphabetical` snapshot, which is what pins the default.
+  - name: section_order_default
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_alpha
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/section_order/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/section_order/prod
+        origin:
+          template: prod
+          layer: 2
+
+  - name: section_order_alphabetical
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_alpha
+    config:
+      sectionOrder: alphabetical
+    resolver_inputs:
+      - path: ./inputs/section_order/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/section_order/prod
+        origin:
+          template: prod
+          layer: 2
+
+  - name: section_order_reverse_alphabetical
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_rev_alpha
+    config:
+      sectionOrder: reverse-alphabetical
+    resolver_inputs:
+      - path: ./inputs/section_order/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/section_order/prod
+        origin:
+          template: prod
+          layer: 2
+
+  - name: section_order_lowest_layer_first
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_lowest
+    config:
+      sectionOrder: lowest-layer-first
+    resolver_inputs:
+      - path: ./inputs/section_order/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/section_order/prod
+        origin:
+          template: prod
+          layer: 2
+
+  - name: section_order_highest_layer_first
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_highest
+    config:
+      sectionOrder: highest-layer-first
+    resolver_inputs:
+      - path: ./inputs/section_order/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order/app
+        origin:
+          template: app
+          layer: 1
+      - path: ./inputs/section_order/prod
+        origin:
+          template: prod
+          layer: 2
+
+  # The preamble carries no heading; it sorts as the empty string, so the
+  # strategy moves it too — first under alphabetical, last under reverse.
+  - name: section_order_preamble_default
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_preamble_alpha
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/section_order_preamble/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order_preamble/app
+        origin:
+          template: app
+          layer: 1
+
+  - name: section_order_preamble_reverse_alphabetical
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/section_order_preamble_rev_alpha
+    config:
+      sectionOrder: reverse-alphabetical
+    resolver_inputs:
+      - path: ./inputs/section_order_preamble/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/section_order_preamble/app
+        origin:
+          template: app
+          layer: 1
