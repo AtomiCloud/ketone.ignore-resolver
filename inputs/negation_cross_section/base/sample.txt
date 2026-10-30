@@ -1,0 +1,3 @@
+### a
+!keep.log
+\!literal.txt
