@@ -70,8 +70,22 @@ jobs:
         if: github.event_name == 'pull_request'
         run: cyanprint push . --dry-run
 
-      - name: Publish to the registry
+      # Runs can start out of order; only the current tip of main may publish, so an older
+      # commit never becomes the latest registry version.
+      - name: Check this is still the tip of main
+        id: tip
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          tip="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)"
+          if [ "$tip" = "$GITHUB_SHA" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::main moved on ($tip); skipping publish of $GITHUB_SHA"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to the registry
+        if: steps.tip.outputs.publish == 'true'
         env:
           CYANPRINT_TOKEN: ${{ secrets.CYAN_TOKEN }}
         run: cyanprint push .
