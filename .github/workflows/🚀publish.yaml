@@ -1,0 +1,52 @@
+name: Publish
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: ${{ github.event_name == 'pull_request' && 'Publish (dry run)' || 'Publish' }}
+    runs-on: ubuntu-24.04
+    env:
+      CYANPRINT_VERSION: 4.9.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install cyanprint
+        run: |
+          base="https://github.com/AtomiCloud/sulfone.lite/releases/download/v${CYANPRINT_VERSION}"
+          archive="cyanprint_${CYANPRINT_VERSION}_linux_amd64.tar.gz"
+          cd "$RUNNER_TEMP"
+          curl -fsSLO "$base/$archive"
+          curl -fsSL "$base/checksums.txt" | grep " ${archive}\$" | sha256sum -c -
+          mkdir -p cyanprint-bin
+          tar -xzf "$archive" -C cyanprint-bin
+          echo "$RUNNER_TEMP/cyanprint-bin" >> "$GITHUB_PATH"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate (dry run)
+        if: github.event_name == 'pull_request'
+        run: cyanprint push . --dry-run
+
+      - name: Publish to the registry
+        if: github.event_name != 'pull_request'
+        env:
+          CYANPRINT_TOKEN: ${{ secrets.CYAN_TOKEN }}
+        run: cyanprint push .
