@@ -47,10 +47,10 @@ Section = {
 3. **For same-named sections:**
    - Collect all pattern lines from all versions
    - Deduplicate (exact string match)
-   - Sort alphabetically
+   - Sort: positive patterns first, then `!negations`, each group in code-unit order
    - Collect all source template names, dedupe, sort
 4. **Sort all section names alphabetically** (preamble always comes first, before any named sections).
-5. **Global dedup pass:** After reconstruction, scan all non-blank, non-header lines across the entire file. Remove duplicates, keeping the first occurrence (preamble first, then sections in alphabetical order).
+5. **Global dedup pass:** After reconstruction, scan all non-blank, non-header lines across the entire file. Remove duplicates: a positive pattern keeps its **first** occurrence; a `!negation` keeps its **last** occurrence, so it stays below the positive it overrides (preamble first, then sections in alphabetical order).
 6. **Normalize blank lines:** One blank line between sections, none within sections.
 
 ### Section Header Format
