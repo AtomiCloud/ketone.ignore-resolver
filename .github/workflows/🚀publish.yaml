@@ -31,6 +31,9 @@ jobs:
   publish:
     name: ${{ github.event_name == 'pull_request' && 'Publish (dry run)' || 'Publish' }}
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash
     env:
       CYANPRINT_VERSION: 4.9.2
       # sulfone.lite commit tagged v4.9.2; pinned so a moved tag cannot change the publisher.
@@ -70,19 +73,26 @@ jobs:
         if: github.event_name == 'pull_request'
         run: cyanprint push . --dry-run
 
-      # Runs can start out of order; only the current tip of main may publish, so an older
-      # commit never becomes the latest registry version.
-      - name: Check this is still the tip of main
+      # Runs can start out of order. Publish only if no newer commit on main changes the
+      # artifact: such a commit has its own run, which publishes the newer artifact instead.
+      # A newer docs-only commit does not trigger a run, so this run still publishes.
+      - name: Decide whether to publish
         id: tip
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          tip="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)"
-          if [ "$tip" = "$GITHUB_SHA" ]; then
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::main moved on ($tip); skipping publish of $GITHUB_SHA"
-            echo "publish=false" >> "$GITHUB_OUTPUT"
+          tip="$(git ls-remote --exit-code "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)"
+          [ -n "$tip" ]
+          publish=true
+          if [ "$tip" != "$GITHUB_SHA" ]; then
+            changed="$(gh api "repos/${GITHUB_REPOSITORY}/compare/${GITHUB_SHA}...${tip}" --paginate --jq '.files[].filename')"
+            if printf '%s\n' "$changed" | grep -Eq '^(index\.ts$|cyan/|cyan\.yaml$|package\.json$|bun\.lock$|tsconfig\.json$|types/|README\.MD$|\.github/workflows/🚀publish\.yaml$)'; then
+              echo "::notice::a newer commit on main ($tip) changes the artifact; its run publishes instead"
+              publish=false
+            fi
           fi
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
       - name: Publish to the registry
         if: steps.tip.outputs.publish == 'true'
