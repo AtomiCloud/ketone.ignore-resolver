@@ -1,0 +1,4 @@
+### secrets
+.env.local
+*.md
+!README.md

@@ -107,6 +107,23 @@ tests:
           template: template-b
           layer: 1
 
+  # Negations must land below the positives they override (git is last-match-wins)
+  - name: negation_after_positive
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/negation_after_positive
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/negation_after_positive/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/negation_after_positive/app
+        origin:
+          template: app
+          layer: 1
+
   - name: trailing_whitespace
     expected:
       type: snapshot
@@ -586,6 +603,24 @@ tests:
           template: base
           layer: 0
       - path: ./inputs/section_order_preamble/app
+        origin:
+          template: app
+          layer: 1
+
+  # A negation repeated in a later section keeps its LAST copy (below the pattern it overrides);
+  # an escaped '\!' pattern is a literal, not a negation
+  - name: negation_cross_section
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/negation_cross_section
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/negation_cross_section/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/negation_cross_section/app
         origin:
           template: app
           layer: 1

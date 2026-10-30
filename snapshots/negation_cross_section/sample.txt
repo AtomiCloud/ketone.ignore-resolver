@@ -1,0 +1,8 @@
+### a
+#### source: base
+\!literal.txt
+
+### b
+#### source: app
+*.log
+!keep.log

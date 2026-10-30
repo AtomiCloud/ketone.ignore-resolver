@@ -187,6 +187,16 @@ function pickComparator(strategy: OrderStrategy): (a: Section, b: Section) => nu
 
 // ─── 4. Merge Sections ──────────────────────────────────────────────
 
+// Git ignore files are last-match-wins, so a `!negation` only works below the
+// pattern it overrides. Positives sort first, negations after, each group in
+// code-unit order.
+function comparePatterns(a: string, b: string): number {
+  const aNegated = a.startsWith('!');
+  const bNegated = b.startsWith('!');
+  if (aNegated !== bNegated) return aNegated ? 1 : -1;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function mergeSections(allSections: Section[], sectionOrder: OrderStrategy): Section[] {
   // Group by header (case-insensitive, preserve first-occurrence casing)
   const headerOrder: string[] = [];
@@ -221,7 +231,7 @@ function mergeSections(allSections: Section[], sectionOrder: OrderStrategy): Sec
         }
       }
     }
-    patterns.sort();
+    patterns.sort(comparePatterns);
 
     const sourceSet = new Set<string>();
     const sources: string[] = [];
@@ -255,9 +265,23 @@ function globalDedup(sections: Section[]): Section[] {
   const seen = new Set<string>();
   const result: Section[] = [];
 
-  for (const section of sections) {
+  // A negation only works below the pattern it overrides, so keep its LAST copy:
+  // dropping a later one could leave the earlier copy above that pattern.
+  const lastNegation = new Map<string, number>();
+  sections.forEach((section, index) => {
+    for (const p of section.patterns) {
+      if (p.startsWith('!')) lastNegation.set(p, index);
+    }
+  });
+
+  for (const [index, section] of sections.entries()) {
     const dedupedPatterns: string[] = [];
     for (const p of section.patterns) {
+      // Patterns are already unique within a section (mergeSections).
+      if (p.startsWith('!')) {
+        if (lastNegation.get(p) === index) dedupedPatterns.push(p);
+        continue;
+      }
       if (!seen.has(p)) {
         seen.add(p);
         dedupedPatterns.push(p);

@@ -47,10 +47,10 @@ Section = {
 3. **For same-named sections:**
    - Collect all pattern lines from all versions
    - Deduplicate (exact string match)
-   - Sort alphabetically
+   - Sort: positive patterns first, then `!negations`, each group in code-unit order
    - Collect all source template names, dedupe, sort
 4. **Sort all section names alphabetically** (preamble always comes first, before any named sections).
-5. **Global dedup pass:** After reconstruction, scan all non-blank, non-header lines across the entire file. Remove duplicates, keeping the first occurrence (preamble first, then sections in alphabetical order).
+5. **Global dedup pass:** After reconstruction, scan all non-blank, non-header lines across the entire file. Remove duplicates: a positive pattern keeps its **first** occurrence; a `!negation` keeps its **last** occurrence, so it stays below the positive it overrides (preamble first, then sections in alphabetical order).
 6. **Normalize blank lines:** One blank line between sections, none within sections.
 
 ### Section Header Format
@@ -86,7 +86,7 @@ The merge result MUST be identical regardless of input file order. This is guara
 | Single file input (1 input) | Passthrough — still adds `#### source:` line under headers, still normalizes |
 | File with no `### ` headers | Wrap content in `### <template-name>`, merge normally |
 | Pattern in multiple sections | Global dedup keeps first occurrence (preamble first, then alphabetical sections) |
-| Negation patterns (`!keep-this`) | Treated as opaque text, deduped and sorted normally |
+| Negation patterns (`!keep-this`) | Deduped like any pattern, but sorted **after** all positive patterns in the section (each group in code-unit order). Git is last-match-wins, so a negation only re-includes a path when it comes below the pattern it overrides. A negation authored *above* a matching positive was already dead in its own file and is not preserved, and neither is a positive authored *below* a negation to re-exclude a path (e.g. `!*.go` then `vendor/`): positives always come first. Keeping authored precedence needs a position-aware merge (future work). In global dedup a repeated negation keeps its **last** copy, so it stays below the pattern it overrides in a later section. An escaped `\!name` is a literal pattern, not a negation. |
 | Empty section after dedup | Section header still included (with sources) |
 | Empty file as input | No-op contributor — no section created, no preamble contribution |
 | Mixed: some files with sections, some without | Files without sections get wrapped, then all merge normally |

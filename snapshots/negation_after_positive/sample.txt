@@ -1,0 +1,7 @@
+### secrets
+#### source: app, base
+*.md
+.env*
+.env.local
+!.env.example
+!README.md
