@@ -187,6 +187,16 @@ function pickComparator(strategy: OrderStrategy): (a: Section, b: Section) => nu
 
 // ─── 4. Merge Sections ──────────────────────────────────────────────
 
+// Git ignore files are last-match-wins, so a `!negation` only works below the
+// pattern it overrides. Positives sort first, negations after, each group in
+// code-unit order.
+function comparePatterns(a: string, b: string): number {
+  const aNegated = a.startsWith('!');
+  const bNegated = b.startsWith('!');
+  if (aNegated !== bNegated) return aNegated ? 1 : -1;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function mergeSections(allSections: Section[], sectionOrder: OrderStrategy): Section[] {
   // Group by header (case-insensitive, preserve first-occurrence casing)
   const headerOrder: string[] = [];
@@ -221,7 +231,7 @@ function mergeSections(allSections: Section[], sectionOrder: OrderStrategy): Sec
         }
       }
     }
-    patterns.sort();
+    patterns.sort(comparePatterns);
 
     const sourceSet = new Set<string>();
     const sources: string[] = [];

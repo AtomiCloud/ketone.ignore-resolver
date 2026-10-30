@@ -107,6 +107,23 @@ tests:
           template: template-b
           layer: 1
 
+  # Negations must land below the positives they override (git is last-match-wins)
+  - name: negation_after_positive
+    expected:
+      type: snapshot
+      value:
+        path: ./snapshots/negation_after_positive
+    config: {}
+    resolver_inputs:
+      - path: ./inputs/negation_after_positive/base
+        origin:
+          template: base
+          layer: 0
+      - path: ./inputs/negation_after_positive/app
+        origin:
+          template: app
+          layer: 1
+
   - name: trailing_whitespace
     expected:
       type: snapshot
